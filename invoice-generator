@@ -1,0 +1,78 @@
+#!/bin/python3
+from pathlib import Path
+from invoice import *
+import os, sys
+
+_venv_python = Path.home() / ".local" / "share" / "geninvoice" / "venv" / "bin" / "python3"
+if _venv_python.exists() and Path(sys.executable).resolve() != _venv_python.resolve():
+    os.execv(str(_venv_python), [str(_venv_python)] + sys.argv)
+
+import invoice
+
+def get_client() -> dict:
+    CLIENT_DIR.mkdir(parents=True, exist_ok=True)
+    files = [f.name for f in CLIENT_DIR.iterdir() if f.is_file()]
+    new_client_option = "Add new client"
+    choice = pick.choose("Pick client", files + [new_client_option])
+    if choice == new_client_option:
+        add_client()
+        return get_client()
+    return json.loads((CLIENT_DIR / choice).read_text(encoding='utf-8'))
+
+def collect_billed_items() -> list[dict]:
+    items = []
+    while True:
+        name = pick.ask("Dienst- of productnaam"),
+        rate = pick.ask("Tarief")
+        quantity = pick.ask("Aantal")
+
+        if is_numeric(rate) and is_numeric(quantity):
+            amount = round(float(rate) * float(quantity), 2)
+        else:
+            amount = float(pick.ask("Bedrag"))
+
+        items.append({
+            'name': name,
+            'ra
+            'rate': rate,
+            'quantity': quantity,
+            'amount': amount,
+            'subtext': pick.ask("Ondertekst"),
+        })
+
+        if pick.choose('Nog een item toevoegen?', ['Nee', 'Ja']) == 'Nee':
+            break
+
+    return items
+
+
+def add_client():
+    name = pick.ask("Client Name")
+    btw_id = pick.ask("Client BTW-id")
+    info = pick.ask("Client info", multiline=True)
+    (CLIENT_DIR / name).write_text(
+        json.dumps({"name": name, "btw_id": btw_id, "info": info}),
+        encoding='utf-8',
+    )
+
+def main():
+    data = {
+        'invoice_number': pick.ask("Vul factuur nummer in"),
+        'client': get_client(),
+        'invoice_type': pick.choose(
+            "Is de factuur inclusief BTW, marge of BTW-verlegd?",
+            ["btw", "marge", "verlegd"],
+        ),
+        'billed_items': [],
+    }
+
+    if data['invoice_type'] == 'btw':
+        data['btw'] = float(pick.ask("BTW percentage"))
+
+    data['billed_items'] = collect_billed_items()
+    pdf_bytes = generate_pdf(data)
+    print(data)
+    Path(f"{data['invoice_number']}.pdf").write_bytes(pdf_bytes)
+
+if __name__ == '__main__':
+    main()

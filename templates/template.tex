@@ -1,0 +1,38 @@
+\input{preamble}
+\input{myinfo}
+
+\newcommand{\bedrag}{ {{amount | fmt}} }
+\newcommand{\subtotal}{\bedrag}
+\newcommand{\taxes}{ {{btw_total | fmt}} }
+\newcommand{\totalwithtaxes}{ {{ amount + btw_total | fmt}} }
+\newcommand{\total}{\bedrag}
+
+\newcommand{\clientaddress}{ {{client.name}} \\ {{client.info}} }
+
+\newcommand{\invoicenumber}{ {{invoice_number}} }
+
+\begin{document}
+\addheader
+\addcontactblock
+\hr
+
+\color{black}
+
+\centering
+\begin{tabularx}{\linewidth}{@{}Y r r r@{}}
+	\addtableheader
+
+
+{% for item in billed_items %}
+\addtask{ {{item.name}} }{ {{item.subtext}} }{ {{item.rate | fmt}} }{ {{item.quantity}} }{ {{item.amount | fmt}} }
+{% endfor %}
+{% if verlegd %}
+De btw is verlegd naar btw-nummer: \\
+\textbf{ {{client.btw_id}} }
+{% endif %}
+
+\end{tabularx}
+
+\addbottomtable
+\addfooter
+\end{document}

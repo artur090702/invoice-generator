@@ -1,0 +1,13 @@
+% Copy this file to myinfo.tex and fill in your own details.
+\newcommand{\mycontact}{
+	Acme Corp \par
+\href{mailto: billing@acmecorp.com }{ billing@acmecorp.com }\par
++1 (555) 123-4567 }
+
+
+\newcommand{\myaddress}{
+	Acme Corp \par
+	123 Main Street, Suite 400 \par
+	New York, NY 10001 \par
+	United States
+}

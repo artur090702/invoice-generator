@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice Generator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: #1a1a2e;
+      letter-spacing: -.02em;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+      padding: 1.75rem 2rem;
+      max-width: 720px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .card h2 {
+      font-size: .85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #6b7280;
+      margin-bottom: 1.25rem;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .row.triple { grid-template-columns: 1fr 1fr 1fr; }
+    .row.full   { grid-template-columns: 1fr; }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+
+    label {
+      font-size: .8rem;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    input, select, textarea {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 7px;
+      padding: .55rem .75rem;
+      font-size: .9rem;
+      font-family: inherit;
+      color: #1a1a2e;
+      background: #fafafa;
+      transition: border-color .15s, box-shadow .15s;
+      width: 100%;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+      background: #fff;
+    }
+
+    textarea { resize: vertical; min-height: 90px; }
+
+    /* Items table */
+    #items-container { display: flex; flex-direction: column; gap: .75rem; }
+
+    .item-row {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 1.2fr 1fr 24px;
+      gap: .6rem;
+      align-items: end;
+      background: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: .75rem .9rem;
+    }
+
+    .item-row .field label { color: #6b7280; }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #9ca3af;
+      font-size: 1.1rem;
+      padding: 0 0 .15rem;
+      line-height: 1;
+      transition: color .15s;
+      align-self: end;
+    }
+
+    .remove-btn:hover { color: #ef4444; }
+
+    .add-btn {
+      background: none;
+      border: 1.5px dashed #d1d5db;
+      border-radius: 7px;
+      color: #6b7280;
+      font-size: .85rem;
+      padding: .55rem 1rem;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      transition: border-color .15s, color .15s;
+      margin-top: .25rem;
+    }
+
+    .add-btn:hover { border-color: #6366f1; color: #6366f1; }
+
+    .submit-btn {
+      display: block;
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: .85rem;
+      background: #6366f1;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+      letter-spacing: .01em;
+    }
+
+    .submit-btn:hover  { background: #4f46e5; }
+    .submit-btn:active { transform: scale(.99); }
+
+    .submit-btn:disabled { background: #a5b4fc; cursor: not-allowed; }
+
+    #status {
+      text-align: center;
+      margin-top: .75rem;
+      font-size: .85rem;
+      color: #6b7280;
+      min-height: 1.2em;
+    }
+
+    @media (max-width: 560px) {
+      .row, .row.triple { grid-template-columns: 1fr; }
+      .item-row { grid-template-columns: 1fr 1fr; }
+      .item-row .field:nth-child(5) { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Factuur genereren</h1>
+
+  <form id="invoice-form">
+
+    <!-- Meta -->
+    <div class="card">
+      <h2>Gegevens Factureerder</h2>
+
+      <div class="row triple">
+        <div class="field">
+          <label for="billing_company_name">Bedrijfsnaam</label>
+          <input id="billing_company_name" name="billing_company_name" type="text" value="" required />
+        </div>
+        <div class="field">
+          <label for="billing_company_phone_number">Telefoonnummer</label>
+          <input id="billing_company_phone_number" name="billing_company_phone_number" type="text" value="" required />
+        </div>
+        <div class="field">
+          <label for="billing_company_email">E-mail</label>
+          <input id="billing_company_email" name="billing_company_email" type="text" value="" required />
+        </div>
+      </div>
+
+      <div class="row full" style="margin-top:1rem">
+        <div class="field">
+          <label for="client_info">Overige gegevens factureerder</label>
+          <textarea id="my_info" name="my_info"> </textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Client -->
+    <div class="card">
+      <h2>Klantgegevens</h2>
+      <div class="row">
+        <div class="field">
+          <label for="client_name">Naam</label>
+          <input id="client_name" name="client_name" type="text" value="" required />
+        </div>
+        <div class="field">
+          <label for="client_btw_id">BTW-nummer</label>
+          <input id="client_btw_id" name="client_btw_id" type="text" value="" />
+        </div>
+      </div>
+      <div class="row full" style="margin-top:1rem">
+        <div class="field">
+          <label for="client_info">Adresgegevens</label>
+          <textarea id="client_info" name="client_info"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div class="card">
+      <h2>Gegevens Factuur</h2>
+      <div id="items-container"></div>
+      <div class="row triple">
+        <div class="field">
+          <label for="invoice_number">Factuurnummer</label>
+          <input id="invoice_number" name="invoice_number" type="text" value="" required />
+        </div>
+        <div class="field">
+          <label for="invoice_type">Type factuur</label>
+          <select id="invoice_type" name="invoice_type">
+            <option value="btw" selected>BTW</option>
+            <option value="marge">Marge</option>
+            <option value="verlegd">BTW-verlegd</option>
+          </select>
+        </div>
+        <div class="field" id="btw-field">
+          <label for="btw">BTW %</label>
+          <input id="btw" name="btw" type="number" min="0" max="100" step="1" value="21" />
+        </div>
+      </div>
+      <label for="add-item">Diensten en Producten</label>
+      <button type="button" class="add-btn" id="add-item">+ Dienst/product toevoegen</button>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submit-btn">PDF genereren</button>
+    <p id="status"></p>
+
+  </form>
+
+  <script>
+    const container = document.getElementById('items-container');
+
+    function addItem(data = {}) {
+      const idx = container.children.length;
+      const div = document.createElement('div');
+      div.className = 'item-row';
+      div.innerHTML = `
+        <div class="field">
+          <label>Omschrijving</label>
+          <input name="item_name" type="text" value="${data.name ?? ''}" placeholder="Dienst / product" required />
+        </div>
+        <div class="field">
+          <label>Tarief (€)</label>
+          <input name="item_rate" type="text" value="${data.rate ?? ''}" placeholder="0.00" />
+        </div>
+        <div class="field">
+          <label>Aantal</label>
+          <input name="item_quantity" type="text" value="${data.quantity ?? ''}" placeholder="1" />
+        </div>
+        <div class="field">
+          <label>Subtekst</label>
+          <input name="item_subtext" type="text" value="${data.subtext ?? ''}" placeholder="" />
+        </div>
+        <button type="button" class="remove-btn" title="Verwijder">×</button>
+      `;
+      div.querySelector('.remove-btn').addEventListener('click', () => {
+        div.remove();
+      });
+      container.appendChild(div);
+    }
+
+    document.getElementById('add-item').addEventListener('click', () => addItem());
+
+    // Hide BTW field when not needed
+    document.getElementById('invoice_type').addEventListener('change', function () {
+      document.getElementById('btw-field').style.display =
+        this.value === 'btw' ? '' : 'none';
+    });
+
+    // Form submit → POST JSON → download PDF
+    document.getElementById('invoice-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const status = document.getElementById('status');
+      btn.disabled = true;
+      status.textContent = 'Bezig met genereren…';
+
+      const fd = new FormData(this);
+      const type = fd.get('invoice_type');
+
+      const itemNames     = fd.getAll('item_name');
+      const itemRates     = fd.getAll('item_rate');
+      const itemQuantities= fd.getAll('item_quantity');
+      const itemSubtexts  = fd.getAll('item_subtext');
+
+      const billed_items = itemNames.map((name, i) => {
+        const rate     = itemRates[i];
+        const quantity = itemQuantities[i];
+        const rateN    = parseFloat(rate);
+        const qtyN     = parseFloat(quantity);
+        const amount   = isFinite(rateN) && isFinite(qtyN) ? Math.round(rateN * qtyN * 100) / 100 : 0;
+        return { name, rate, quantity, amount, subtext: itemSubtexts[i] ?? '' };
+      });
+
+      const amount = billed_items.reduce((s, it) => s + it.amount, 0);
+
+      const payload = {
+        invoice_number: fd.get('invoice_number'),
+        invoice_type:   type,
+        client: {
+          name:   fd.get('client_name'),
+          btw_id: fd.get('client_btw_id'),
+          info:   fd.get('client_info'),
+        },
+        billed_items,
+        amount,
+        ...(type === 'btw'     ? { btw:     fd.get('btw') }    : {}),
+        ...(type === 'marge'   ? { marge:   true, btw: 0 }     : {}),
+        ...(type === 'verlegd' ? { verlegd: true, btw: 0 }     : {}),
+        my_info: fd.get('my_info'),
+        billing_company_name: fd.get('billing_company_name'),
+        billing_company_email: fd.get('billing_company_email'),
+        billing_company_phone_number: fd.get('billing_company_phone_number'),
+      };
+
+      try {
+        const res = await fetch('/generate', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(msg || res.statusText);
+        }
+
+        const blob = await res.blob();
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `factuur-${payload.invoice_number}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        status.textContent = `Factuur ${payload.invoice_number} gedownload.`;
+      } catch (err) {
+        status.textContent = `Fout: ${err.message}`;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // Seed initial data
+  </script>
+</body>
+</html>

@@ -1,7 +1,6 @@
 # invoice-generator
 
 Interactive CLI tool for generating PDF invoices from a LaTeX template.
-Supports standard BTW, marge, and BTW-verlegd.
 
 ## Requirements
 

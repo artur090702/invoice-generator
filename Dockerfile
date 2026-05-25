@@ -1,7 +1,7 @@
 FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash python3-venv texlive-latex-extra texlive-latex-recommended \
+    bash python3-flask python3-venv texlive-latex-extra texlive-latex-recommended \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

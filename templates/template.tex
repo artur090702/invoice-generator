@@ -2,7 +2,7 @@
 \input{myinfo}
 
 \newcommand{\bedrag}{ {{(amount + btw_total) | fmt}} }
-\newcommand{\subtotal}{\bedrag}
+\newcommand{\subtotal}{ {{amount | fmt}} }
 \newcommand{\taxes}{ {{btw_total | fmt}} }
 \newcommand{\totalwithtaxes}{ {{ (amount + btw_total) | fmt}} }
 \newcommand{\total}{\bedrag}

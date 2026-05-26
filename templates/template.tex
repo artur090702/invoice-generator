@@ -4,7 +4,7 @@
 \newcommand{\bedrag}{ {{amount | fmt}} }
 \newcommand{\subtotal}{\bedrag}
 \newcommand{\taxes}{ {{btw_total | fmt}} }
-\newcommand{\totalwithtaxes}{ {{ amount + btw_total | fmt}} }
+\newcommand{\totalwithtaxes}{ {{ (amount + btw_total) | fmt}} }
 \newcommand{\total}{\bedrag}
 
 \newcommand{\clientaddress}{ {{client.name}} \\ {{client.info}} }

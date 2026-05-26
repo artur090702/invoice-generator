@@ -24,7 +24,6 @@ steps:
       - $_CLUSTER_NAME
       - --zone=$_CLUSTER_ZONE
       - --project=$PROJECT_ID
-    waitFor: ['Docker Push']
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: Rollout Restart
@@ -33,7 +32,7 @@ steps:
       - rollout
       - restart
       - deployment/invoice-generator
-    waitFor: ['Get Credentials']
+    waitFor: ['Get Credentials', 'Docker Push']
 
 images:
   - $_IMAGE_NAME:$COMMIT_SHA

@@ -11,7 +11,7 @@ app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024  # 1 MB
 REQUIRED_FIELDS = ['invoice_number', 'invoice_type', 'billed_items', 'client', 'my_info']
 VALID_INVOICE_TYPES = ('btw', 'marge', 'verlegd')
 
-URL_PREFIX="/invoice_generator"
+URL_PREFIX="/invoice-generator"
 
 @app.route(f'{URL_PREFIX}/')
 def serve_home():

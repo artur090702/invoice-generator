@@ -22,7 +22,7 @@ def get_client() -> dict:
 def collect_billed_items() -> list[dict]:
     items = []
     while True:
-        name = pick.ask("Dienst- of productnaam"),
+        name = pick.ask("Dienst- of productnaam")
         rate = pick.ask("Tarief")
         quantity = pick.ask("Aantal")
 
@@ -70,7 +70,6 @@ def main():
 
     data['billed_items'] = collect_billed_items()
     pdf_bytes = generate_pdf(data)
-    print(data)
     Path(f"{data['invoice_number']}.pdf").write_bytes(pdf_bytes)
 
 if __name__ == '__main__':

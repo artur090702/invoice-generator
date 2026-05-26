@@ -1,4 +1,5 @@
 #!/bin/sh
+set -euo pipefail
 sudo systemctl kill docker
 sudo systemctl start docker
 sudo docker build . -t invoice-generator:latest

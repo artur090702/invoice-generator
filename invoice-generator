@@ -33,7 +33,6 @@ def collect_billed_items() -> list[dict]:
 
         items.append({
             'name': name,
-            'ra
             'rate': rate,
             'quantity': quantity,
             'amount': amount,
